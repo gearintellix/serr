@@ -28,8 +28,6 @@ type SErr interface {
 
 	Sprint() string
 	SprintWithColor() string
-	JSON() string
-	Panic()
 }
 
 type serr struct {

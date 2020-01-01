@@ -28,6 +28,11 @@ func Newk(key string, msg string) SErr {
 
 func Newc(msg string, comment string) SErr {
 	errx := construct(ErrLevelFatal, ErrCodeNothing, ErrKeyNothing, errors.New(msg))
+
+	if comment == "@" {
+		comment = msg
+	}
+
 	errx.AddComment(comment)
 	return errx
 }
@@ -46,6 +51,11 @@ func Newlk(lvl ErrLevel, key string, msg string) SErr {
 
 func Newlc(lvl ErrLevel, msg string, comment string) SErr {
 	errx := construct(lvl, ErrCodeNothing, ErrKeyNothing, errors.New(msg))
+
+	if comment == "@" {
+		comment = msg
+	}
+
 	errx.AddComment(comment)
 	return errx
 }
@@ -60,6 +70,11 @@ func Newik(code int, key string, msg string) SErr {
 
 func Newic(code int, msg string, comment string) SErr {
 	errx := construct(ErrLevelFatal, code, ErrKeyNothing, errors.New(msg))
+
+	if comment == "@" {
+		comment = msg
+	}
+
 	errx.AddComment(comment)
 	return errx
 }
@@ -70,6 +85,11 @@ func Newkf(key string, frmt string, args ...interface{}) SErr {
 
 func Newkc(key string, msg string, comment string) SErr {
 	errx := construct(ErrLevelFatal, ErrCodeNothing, key, errors.New(msg))
+
+	if comment == "@" {
+		comment = msg
+	}
+
 	errx.AddComment(comment)
 	return errx
 }
@@ -92,6 +112,11 @@ func NewFromErrork(key string, err error) SErr {
 
 func NewFromErrorc(err error, comment string) SErr {
 	errx := construct(ErrLevelFatal, ErrCodeNothing, ErrKeyNothing, err)
+
+	if comment == "@" {
+		comment = err.Error()
+	}
+
 	errx.AddComment(comment)
 	return errx
 }
