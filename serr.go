@@ -14,6 +14,7 @@ type SErr interface {
 	Error() error
 	String() string
 	Comments() string
+	CommentStack() []string
 	Payload() ErrPayload
 	File() string
 	Line() int
@@ -23,6 +24,7 @@ type SErr interface {
 	SetCode(code int)
 	SetLevel(lvl ErrLevel)
 	AddComment(msg string)
+	AddCommentf(msg string, opts ...interface{})
 	ApplyPayload(payload ErrPayload)
 	SetPayload(key string, value interface{})
 
@@ -113,6 +115,10 @@ func (ox serr) Comments() string {
 	return strings.Join(ox.comments, ", ")
 }
 
+func (ox serr) CommentStack() []string {
+	return ox.comments
+}
+
 func (ox serr) File() string {
 	return ox.file
 }
@@ -143,6 +149,10 @@ func (ox *serr) SetLevel(lvl ErrLevel) {
 
 func (ox *serr) AddComment(msg string) {
 	ox.comments = append(ox.comments, msg)
+}
+
+func (ox *serr) AddCommentf(msg string, opts ...interface{}) {
+	ox.comments = append(ox.comments, fmt.Sprintf(msg, opts))
 }
 
 func (ox *serr) ApplyPayload(load ErrPayload) {
@@ -177,7 +187,7 @@ func (ox serr) Sprint() string {
 	}
 
 	if len(ox.comments) > 0 {
-		comments += fmt.Sprintf(" <detail: %s>", ox.Comments())
+		comments += fmt.Sprintf(" <comments: %s>", ox.Comments())
 	}
 
 	return fmt.Sprintf(
@@ -202,7 +212,7 @@ func (ox serr) SprintWithColor() string {
 	}
 
 	if len(ox.comments) > 0 {
-		comments += fmt.Sprintf(" <detail: %s>", ox.Comments())
+		comments += fmt.Sprintf(" <comments: %s>", ox.Comments())
 	}
 
 	return fmt.Sprintf(
