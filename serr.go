@@ -104,7 +104,7 @@ func construct(level ErrLevel, code int, key string, err error, skip int) *serr 
 
 // Error to get error message
 func (ox serr) Error() string {
-	return ox.err.Error()
+	return fmt.Sprintf("%+v", ox.err)
 }
 
 // Cause to get original error
@@ -222,7 +222,7 @@ func (ox serr) String() string {
 		ox.FN(),
 		ox.File(),
 		ox.Line(),
-		ox.String(),
+		ox.Error(),
 		comments,
 	)
 }
@@ -235,7 +235,7 @@ func (ox serr) ColoredString() string {
 		comments += fmt.Sprintf(" <code: %d>", ox.Code())
 	}
 
-	if isExists(ox.Key(), []string{"-", "!"}) {
+	if !isExists(ox.Key(), []string{"", "-", "!"}) {
 		comments += fmt.Sprintf(" <key: %s>", ox.Key())
 	}
 
@@ -248,7 +248,7 @@ func (ox serr) ColoredString() string {
 		ox.FN(),
 		ox.File(),
 		ox.Line(),
-		ox.String(),
+		ox.Error(),
 		comments,
 	)
 }
