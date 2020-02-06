@@ -1,12 +1,12 @@
 package serr
 
-// GetStandardFormat function
-func GetStandardFormat() string {
+// StandardFormat function
+func StandardFormat() string {
 	return "In %s[%s:%d] %s.%s"
 }
 
-// GetStandardColorFormat function
-func GetStandardColorFormat() string {
+// StandardColorFormat function
+func StandardColorFormat() string {
 	frmt := ""
 	frmt += applyForeColor("In", colorDarkGray) + " "
 	frmt += applyForeColor("%s", colorLightYellow)
