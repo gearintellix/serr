@@ -3,7 +3,6 @@ package serr
 import (
 	"fmt"
 	"reflect"
-	"runtime"
 	"strings"
 
 	gerr "github.com/go-errors/errors"
@@ -86,10 +85,7 @@ const (
 	ErrCodeNothing int = 0
 )
 
-func construct(level ErrLevel, code int, key string, err error, skip int) *serr {
-	stack := make([]uintptr, 50)
-	length := runtime.Callers(3+skip, stack[:])
-
+func construct(stack []uintptr, level ErrLevel, code int, key string, err error, skip int) *serr {
 	res := &serr{
 		level:    level,
 		err:      err,
@@ -97,7 +93,7 @@ func construct(level ErrLevel, code int, key string, err error, skip int) *serr 
 		code:     code,
 		comments: []string{},
 		payload:  make(ErrPayload),
-		stack:    stack[:length],
+		stack:    stack,
 	}
 	return res
 }
