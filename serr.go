@@ -3,9 +3,11 @@ package serr
 import (
 	"fmt"
 	"reflect"
+	"runtime"
 	"strings"
 
 	gerr "github.com/go-errors/errors"
+	"github.com/koinworks/asgard-heimdal/utils/utstring"
 )
 
 type (
@@ -17,6 +19,7 @@ type (
 		Level() ErrLevel
 		Code() int
 		Key() string
+		Title() string
 		Comments() string
 		CommentStack() []string
 		Payload() ErrPayload
@@ -121,6 +124,14 @@ func (ox serr) Code() int {
 // Key to get error key
 func (ox serr) Key() string {
 	return ox.key
+}
+
+// Title to get error title
+func (ox serr) Title() string {
+	if len(ox.comments) > 0 {
+		return ox.comments[0]
+	}
+	return ox.Error()
 }
 
 // Comments to get error comments
@@ -264,14 +275,28 @@ func (ox *serr) SetLevel(lvl ErrLevel) {
 	ox.level = lvl
 }
 
+func (ox *serr) addRawComment(note string, skip int) {
+	if utstring.Length(note) <= 0 {
+		return
+	}
+
+	if len(ox.comments) <= 0 {
+		ox.comments = append(ox.comments, strings.ToUpper(string(note[0]))+string(note[1:]))
+		return
+	}
+
+	_, file, line, _ := runtime.Caller(skip + 1)
+	ox.comments = append(ox.comments, fmt.Sprintf("%s on [%s:%d]", note, file, line))
+}
+
 // AddComment to add error comment
 func (ox *serr) AddComment(msg string) {
-	ox.comments = append(ox.comments, msg)
+	ox.addRawComment(msg, 1)
 }
 
 // AddCommentf to add error comment with string binding
 func (ox *serr) AddCommentf(msg string, opts ...interface{}) {
-	ox.comments = append(ox.comments, fmt.Sprintf(msg, opts...))
+	ox.addRawComment(fmt.Sprintf(msg, opts...), 1)
 }
 
 // ApplyPayload to apply error payload

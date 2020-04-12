@@ -2,6 +2,7 @@ package serr
 
 import (
 	"fmt"
+	"runtime"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -9,37 +10,53 @@ import (
 
 func TestBasicConstruction(t *testing.T) {
 	errx := New("Test error message")
+	_, _, line, _ := runtime.Caller(0)
 
 	// expected
-	exPath := "/serr/construct_test.go:11"
-	exMsg := "Test error message"
+	var (
+		exPath  = fmt.Sprintf("/serr/construct_test.go:%d", (line - 1))
+		exTitle = "Test error message"
+		exMsg   = "Test error message"
+	)
 
-	if !assert.Contains(t, fmt.Sprintf("%s:%d", errx.File(), errx.Line()), exPath, "Error trace") {
+	if !assert.Contains(t, fmt.Sprintf("%s:%d", errx.File(), errx.Line()), exPath, "Error trace is not match") {
 		t.FailNow()
 	}
 
-	if !assert.Equal(t, errx.Error(), exMsg, "Error message") {
+	if !assert.Equal(t, errx.Title(), exTitle, "Error title is not match") {
+		t.FailNow()
+	}
+
+	if !assert.Equal(t, errx.Error(), exMsg, "Error message is not match") {
 		t.FailNow()
 	}
 }
 
 func TestBasicWithCommentConstruction(t *testing.T) {
 	errx := Newc("Test error message", "Test comments")
+	_, _, line, _ := runtime.Caller(0)
 
 	// expected
-	exPath := "/serr/construct_test.go:27"
-	exMsg := "Test error message"
-	exComment := "Test comments"
+	var (
+		exPath    = fmt.Sprintf("/serr/construct_test.go:%d", (line - 1))
+		exMsg     = "Test error message"
+		exTitle   = "Test comments"
+		exComment = "Test comments"
+	)
 
-	if !assert.Contains(t, fmt.Sprintf("%s:%d", errx.File(), errx.Line()), exPath, "Error trace") {
+	if !assert.Contains(t, fmt.Sprintf("%s:%d", errx.File(), errx.Line()), exPath, "Error trace is not match") {
 		t.FailNow()
 	}
 
-	if !assert.Equal(t, errx.Comments(), exComment, "Error comment") {
+	if !assert.Equal(t, errx.Title(), exTitle, "Error title is not match") {
 		t.FailNow()
 	}
 
-	if !assert.Equal(t, errx.Error(), exMsg, "Error message") {
+	if !assert.Equal(t, errx.Comments(), exComment, "Error comment is not match") {
+		t.FailNow()
+	}
+
+	if !assert.Equal(t, errx.Error(), exMsg, "Error message is not match") {
 		t.FailNow()
 	}
 }
