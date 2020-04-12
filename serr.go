@@ -7,7 +7,6 @@ import (
 	"strings"
 
 	gerr "github.com/go-errors/errors"
-	"github.com/koinworks/asgard-heimdal/utils/utstring"
 )
 
 type (
@@ -276,7 +275,7 @@ func (ox *serr) SetLevel(lvl ErrLevel) {
 }
 
 func (ox *serr) addRawComment(note string, skip int) {
-	if utstring.Length(note) <= 0 {
+	if len(note) <= 0 {
 		return
 	}
 
