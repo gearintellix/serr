@@ -3,6 +3,7 @@ package serr
 import (
 	"fmt"
 	"reflect"
+	"strings"
 )
 
 // color type
@@ -130,7 +131,7 @@ func isExists(value interface{}, array interface{}) (exist bool) {
 		s := reflect.ValueOf(array)
 
 		for i := 0; i < s.Len(); i++ {
-			if reflect.DeepEqual(value, s.Index(i).Interface()) == true {
+			if reflect.DeepEqual(value, s.Index(i).Interface()) {
 				exist = true
 				return exist
 			}
@@ -138,4 +139,16 @@ func isExists(value interface{}, array interface{}) (exist bool) {
 	}
 
 	return exist
+}
+
+// resolvePath function to get sort file path based on rootPaths
+func resolvePath(val string) string {
+	for _, v := range rootPaths {
+		if strings.HasPrefix(val, v) {
+			val = val[len(v):]
+			return val
+		}
+	}
+
+	return val
 }

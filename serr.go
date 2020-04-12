@@ -2,6 +2,7 @@ package serr
 
 import (
 	"fmt"
+	"path"
 	"reflect"
 	"runtime"
 	"strings"
@@ -87,6 +88,37 @@ const (
 	ErrCodeNothing int = 0
 )
 
+var (
+	rootPaths []string
+)
+
+// RegisterRootPath function
+func RegisterRootPath(paths []string) {
+	rootPaths = append(rootPaths, paths...)
+}
+
+// RegisterThisAsRoot function
+func RegisterThisAsRoot(cskip int, pskip int) SErr {
+	_, file, _, ok := runtime.Caller(cskip + 1)
+	if !ok {
+		return Newc("Failed to get path", "@")
+	}
+
+	sep := "/"
+	if runtime.GOOS == "windows" {
+		sep = "\\"
+	}
+
+	file = path.Dir(file)
+	paths := strings.Split(file, sep)
+	if len(paths) > pskip {
+		paths = paths[:len(paths)-pskip]
+	}
+	RegisterRootPath([]string{strings.Join(paths, sep)})
+
+	return nil
+}
+
 func construct(stack []uintptr, level ErrLevel, code int, key string, err error, skip int) *serr {
 	res := &serr{
 		level:    level,
@@ -159,7 +191,9 @@ func (ox *serr) StackFrames() []gerr.StackFrame {
 		ox.frames = make([]gerr.StackFrame, len(ox.stack))
 
 		for i, pc := range ox.stack {
-			ox.frames[i] = gerr.NewStackFrame(pc)
+			item := gerr.NewStackFrame(pc)
+			item.File = resolvePath(item.File)
+			ox.frames[i] = item
 		}
 	}
 
@@ -285,7 +319,7 @@ func (ox *serr) addRawComment(note string, skip int) {
 	}
 
 	_, file, line, _ := runtime.Caller(skip + 1)
-	ox.comments = append(ox.comments, fmt.Sprintf("%s on [%s:%d]", note, file, line))
+	ox.comments = append(ox.comments, fmt.Sprintf("%s on [%s:%d]", note, resolvePath(file), line))
 }
 
 // AddComment to add error comment
