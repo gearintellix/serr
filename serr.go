@@ -129,6 +129,7 @@ func construct(stack []uintptr, level ErrLevel, code int, key string, err error,
 		payload:  make(ErrPayload),
 		stack:    stack,
 	}
+	res.addRawComment(err.Error(), skip+1)
 	return res
 }
 

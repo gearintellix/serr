@@ -61,11 +61,9 @@ func Newslikc(skip int, lvl ErrLevel, code int, key string, msg string, comment 
 
 	errx := construct(stack[:length], lvl, code, key, errors.New(msg), skip)
 
-	if comment == "@" {
-		comment = msg
+	if comment != "@" {
+		errx.comments[0] = comment
 	}
-
-	errx.AddComment(comment)
 	return errx
 }
 
@@ -92,11 +90,9 @@ func Newsikc(skip int, code int, key string, msg string, comment string) SErr {
 
 	errx := construct(stack[:length], ErrLevelFatal, code, key, errors.New(msg), skip)
 
-	if comment == "@" {
-		comment = msg
+	if comment != "@" {
+		errx.comments[0] = comment
 	}
-
-	errx.AddComment(comment)
 	return errx
 }
 
@@ -115,11 +111,9 @@ func Newskc(skip int, key string, msg string, comment string) SErr {
 
 	errx := construct(stack[:length], ErrLevelFatal, ErrCodeNothing, key, errors.New(msg), skip)
 
-	if comment == "@" {
-		comment = msg
+	if comment != "@" {
+		errx.comments[0] = comment
 	}
-
-	errx.AddComment(comment)
 	return errx
 }
 
@@ -138,11 +132,9 @@ func Newsc(skip int, msg string, comment string) SErr {
 
 	errx := construct(stack[:length], ErrLevelFatal, ErrCodeNothing, ErrKeyNothing, errors.New(msg), skip)
 
-	if comment == "@" {
-		comment = msg
+	if comment != "@" {
+		errx.comments[0] = comment
 	}
-
-	errx.AddComment(comment)
 	return errx
 }
 
@@ -185,11 +177,9 @@ func Newlikc(lvl ErrLevel, code int, key string, msg string, comment string) SEr
 
 	errx := construct(stack[:length], lvl, code, key, errors.New(msg), 0)
 
-	if comment == "@" {
-		comment = msg
+	if comment != "@" {
+		errx.comments[0] = comment
 	}
-
-	errx.AddComment(comment)
 	return errx
 }
 
@@ -224,11 +214,9 @@ func Newikc(code int, key string, msg string, comment string) SErr {
 
 	errx := construct(stack[:length], ErrLevelFatal, code, key, errors.New(msg), 0)
 
-	if comment == "@" {
-		comment = msg
+	if comment != "@" {
+		errx.comments[0] = comment
 	}
-
-	errx.AddComment(comment)
 	return errx
 }
 
@@ -255,11 +243,9 @@ func Newkc(key string, msg string, comment string) SErr {
 
 	errx := construct(stack[:length], ErrLevelFatal, ErrCodeNothing, key, errors.New(msg), 0)
 
-	if comment == "@" {
-		comment = msg
+	if comment != "@" {
+		errx.comments[0] = comment
 	}
-
-	errx.AddComment(comment)
 	return errx
 }
 
@@ -270,11 +256,9 @@ func Newc(msg string, comment string) SErr {
 
 	errx := construct(stack[:length], ErrLevelFatal, ErrCodeNothing, ErrKeyNothing, errors.New(msg), 0)
 
-	if comment == "@" {
-		comment = msg
+	if comment != "@" {
+		errx.comments[0] = comment
 	}
-
-	errx.AddComment(comment)
 	return errx
 }
 
@@ -285,11 +269,9 @@ func Newslic(skip int, lvl ErrLevel, code int, msg string, comment string) SErr 
 
 	errx := construct(stack[:length], lvl, code, ErrKeyNothing, errors.New(msg), skip)
 
-	if comment == "@" {
-		comment = msg
+	if comment != "@" {
+		errx.comments[0] = comment
 	}
-
-	errx.AddComment(comment)
 	return errx
 }
 
@@ -308,11 +290,9 @@ func Newsic(skip int, code int, msg string, comment string) SErr {
 
 	errx := construct(stack[:length], ErrLevelFatal, code, ErrKeyNothing, errors.New(msg), skip)
 
-	if comment == "@" {
-		comment = msg
+	if comment != "@" {
+		errx.comments[0] = comment
 	}
-
-	errx.AddComment(comment)
 	return errx
 }
 
@@ -323,11 +303,9 @@ func Newslc(skip int, lvl ErrLevel, msg string, comment string) SErr {
 
 	errx := construct(stack[:length], lvl, ErrCodeNothing, ErrKeyNothing, errors.New(msg), skip)
 
-	if comment == "@" {
-		comment = msg
+	if comment != "@" {
+		errx.comments[0] = comment
 	}
-
-	errx.AddComment(comment)
 	return errx
 }
 
@@ -338,11 +316,9 @@ func Newlkc(lvl ErrLevel, key string, msg string, comment string) SErr {
 
 	errx := construct(stack[:length], lvl, ErrCodeNothing, key, errors.New(msg), 0)
 
-	if comment == "@" {
-		comment = msg
+	if comment != "@" {
+		errx.comments[0] = comment
 	}
-
-	errx.AddComment(comment)
 	return errx
 }
 
@@ -353,11 +329,9 @@ func Newlic(lvl ErrLevel, code int, msg string, comment string) SErr {
 
 	errx := construct(stack[:length], lvl, code, ErrKeyNothing, errors.New(msg), 0)
 
-	if comment == "@" {
-		comment = msg
+	if comment != "@" {
+		errx.comments[0] = comment
 	}
-
-	errx.AddComment(comment)
 	return errx
 }
 
@@ -376,11 +350,9 @@ func Newlc(lvl ErrLevel, msg string, comment string) SErr {
 
 	errx := construct(stack[:length], lvl, ErrCodeNothing, ErrKeyNothing, errors.New(msg), 0)
 
-	if comment == "@" {
-		comment = msg
+	if comment != "@" {
+		errx.comments[0] = comment
 	}
-
-	errx.AddComment(comment)
 	return errx
 }
 
@@ -431,10 +403,8 @@ func NewFromErrorc(err error, comment string) SErr {
 
 	errx := construct(stack[:length], ErrLevelFatal, ErrCodeNothing, ErrKeyNothing, err, 0)
 
-	if comment == "@" {
-		comment = err.Error()
+	if comment != "@" {
+		errx.comments[0] = comment
 	}
-
-	errx.AddComment(comment)
 	return errx
 }
