@@ -273,7 +273,7 @@ func (ox serr) String() string {
 func (ox serr) SimpleString() string {
 	msg := ox.Error()
 	if len(ox.comments) > 0 {
-		msg = fmt.Sprintf("%s, detail: %s", ox.Comments(), msg)
+		msg = fmt.Sprintf("%s, detail: %s [%s:%d]", ox.Comments(), msg, ox.File(), ox.Line())
 	}
 
 	return msg
