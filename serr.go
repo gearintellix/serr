@@ -35,6 +35,7 @@ type (
 
 		String() string
 		ColoredString() string
+		SimpleString() string
 
 		SetKey(key string)
 		SetCode(code int)
@@ -101,7 +102,7 @@ func RegisterRootPath(paths []string) {
 func RegisterThisAsRoot(cskip int, pskip int) SErr {
 	_, file, _, ok := runtime.Caller(cskip + 1)
 	if !ok {
-		return Newc("Failed to get path", "@")
+		return New("Failed to get path")
 	}
 
 	sep := "/"
@@ -266,6 +267,16 @@ func (ox serr) String() string {
 		ox.Error(),
 		comments,
 	)
+}
+
+// SimpleString to get simple formatted error message
+func (ox serr) SimpleString() string {
+	msg := ox.Error()
+	if len(ox.comments) > 0 {
+		msg = fmt.Sprintf("%s, detail: %s", ox.Comments(), msg)
+	}
+
+	return msg
 }
 
 // ColoredString to get formated error message with color (cli color code)
