@@ -402,9 +402,22 @@ func NewFromErrorc(err error, comment string) SErr {
 	length := runtime.Callers(2, stack[:])
 
 	errx := construct(stack[:length], ErrLevelFatal, ErrCodeNothing, ErrKeyNothing, err, 0)
-
 	if comment != "@" {
 		errx.comments[0] = comment
 	}
+
+	return errx
+}
+
+// NewFromErrorkc serr from error, error key, and comment
+func NewFromErrorkc(err error, key string, comment string) SErr {
+	stack := make([]uintptr, 50)
+	length := runtime.Callers(2, stack[:])
+
+	errx := construct(stack[:length], ErrLevelFatal, ErrCodeNothing, key, err, 0)
+	if comment != "@" {
+		errx.comments[0] = comment
+	}
+
 	return errx
 }
