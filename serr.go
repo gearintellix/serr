@@ -41,6 +41,7 @@ type (
 		SetCode(code int)
 		SetLevel(lvl ErrLevel)
 		AddComment(msg string)
+		AddComments(skip int, msg string)
 		AddCommentf(msg string, opts ...interface{})
 		ApplyPayload(payload ErrPayload)
 		SetPayload(key string, value interface{})
@@ -337,6 +338,11 @@ func (ox *serr) addRawComment(note string, skip int) {
 // AddComment to add error comment
 func (ox *serr) AddComment(msg string) {
 	ox.addRawComment(msg, 1)
+}
+
+// AddComments to add error comment with skip
+func (ox *serr) AddComments(skip int, msg string) {
+	ox.addRawComment(msg, 1+skip)
 }
 
 // AddCommentf to add error comment with string binding
