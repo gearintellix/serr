@@ -14,7 +14,7 @@ func TestBasicConstruction(t *testing.T) {
 
 	// expected
 	var (
-		exPath  = fmt.Sprintf("/serr/construct_test.go:%d", (line - 1))
+		exPath  = fmt.Sprintf("/serr/constructor_test.go:%d", (line - 1))
 		exTitle = "Test error message"
 		exMsg   = "Test error message"
 	)
@@ -38,7 +38,7 @@ func TestBasicWithCommentConstruction(t *testing.T) {
 
 	// expected
 	var (
-		exPath    = fmt.Sprintf("/serr/construct_test.go:%d", (line - 1))
+		exPath    = fmt.Sprintf("/serr/constructor_test.go:%d", (line - 1))
 		exMsg     = "Test error message"
 		exTitle   = "Test comments"
 		exComment = "Test comments"

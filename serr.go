@@ -16,13 +16,13 @@ type (
 		Error() string
 		Cause() error
 
-		Level() ErrLevel
+		Level() ErrorLevel
 		Code() int
 		Key() string
 		Title() string
 		Comments() string
 		CommentStack() []string
-		Payload() ErrPayload
+		Payload() ErrorPayload
 
 		Callers() []uintptr
 		StackFrames() []gerr.StackFrame
@@ -39,69 +39,70 @@ type (
 
 		SetKey(key string)
 		SetCode(code int)
-		SetLevel(lvl ErrLevel)
+		SetLevel(lvl ErrorLevel)
 		AddComment(msg string)
 		AddComments(skip int, msg string)
 		AddCommentf(msg string, opts ...interface{})
-		ApplyPayload(payload ErrPayload)
+		ApplyPayload(payload ErrorPayload)
 		SetPayload(key string, value interface{})
 	}
 
-	// ErrPayload type
-	ErrPayload map[string]interface{}
+	// ErrorPayload type
+	ErrorPayload map[string]interface{}
 
-	// ErrLevel type
-	ErrLevel string
+	// ErrorLevel type
+	ErrorLevel string
 )
 
 type serr struct {
-	level    ErrLevel
+	level    ErrorLevel
 	err      error
 	key      string
 	code     int
 	comments []string
-	payload  ErrPayload
+	payload  ErrorPayload
 	frames   []gerr.StackFrame
 	stack    []uintptr
 }
 
 const (
-	// ErrLevelFatal constant for fatal error level
-	ErrLevelFatal ErrLevel = "fatal"
+	// ErrorLevelFatal for fatal error
+	ErrorLevelFatal ErrorLevel = "fatal"
 
-	// ErrLevelWarn constant for warning error level
-	ErrLevelWarn ErrLevel = "warn"
+	// ErrorLevelValidation for validation error
+	ErrorLevelValidation ErrorLevel = "warn"
 
-	// ErrLevelInfo constant for info error level
-	ErrLevelInfo ErrLevel = "info"
+	// ErrorLevelWarn for warning error
+	ErrorLevelWarn ErrorLevel = "warn"
+
+	// ErrorLevelInfo for information error
+	ErrorLevelInfo ErrorLevel = "info"
 )
 
 const (
-	// ErrKeyNothing constant for empty error key
-	ErrKeyNothing string = "-"
+	// ErrorKeyNothing constant for empty error key
+	ErrorKeyNothing = "-"
 
-	// ErrKeyUnexpected constant for unexpected error key
-	ErrKeyUnexpected string = "unexpected"
+	// ErrorKeyUnexpected constant for unexpected error key
+	ErrorKeyUnexpected = "unexpected"
 
-	// ErrKeyExpected constant for expected error key
-	ErrKeyExpected string = "expected"
+	// ErrorKeyExpected constant for expected error key
+	ErrorKeyExpected = "expected"
 
-	// ErrCodeNothing constant for empty error code
-	ErrCodeNothing int = 0
+	// ErrorCodeNothing constant for empty error code
+	ErrorCodeNothing = 0
 )
 
-var (
-	rootPaths []string
-)
+var rootPaths []string
 
-// RegisterRootPath function
+// RegisterRootPath to registering the root path.
 func RegisterRootPath(paths []string) {
 	rootPaths = append(rootPaths, paths...)
 }
 
-// RegisterThisAsRoot function
-func RegisterThisAsRoot(cskip int, pskip int) SErr {
-	_, file, _, ok := runtime.Caller(cskip + 1)
+// RegisterHereAsRootPath to registering here (current file path) as a root path.
+func RegisterHereAsRootPath(callerSkip int, pathSkip int) SErr {
+	_, file, _, ok := runtime.Caller(callerSkip + 1)
 	if !ok {
 		return New("Failed to get path")
 	}
@@ -113,26 +114,12 @@ func RegisterThisAsRoot(cskip int, pskip int) SErr {
 
 	file = path.Dir(file)
 	paths := strings.Split(file, sep)
-	if len(paths) > pskip {
-		paths = paths[:len(paths)-pskip]
+	if len(paths) > pathSkip {
+		paths = paths[:len(paths)-pathSkip]
 	}
 	RegisterRootPath([]string{strings.Join(paths, sep)})
 
 	return nil
-}
-
-func construct(stack []uintptr, level ErrLevel, code int, key string, err error, skip int) *serr {
-	res := &serr{
-		level:    level,
-		err:      err,
-		key:      key,
-		code:     code,
-		comments: []string{},
-		payload:  make(ErrPayload),
-		stack:    stack,
-	}
-	res.addRawComment(err.Error(), skip+1)
-	return res
 }
 
 // Error to get error message
@@ -146,7 +133,7 @@ func (ox serr) Cause() error {
 }
 
 // Level to get error level
-func (ox serr) Level() ErrLevel {
+func (ox serr) Level() ErrorLevel {
 	return ox.level
 }
 
@@ -179,7 +166,7 @@ func (ox serr) CommentStack() []string {
 }
 
 // Payload to get error payload
-func (ox serr) Payload() ErrPayload {
+func (ox serr) Payload() ErrorPayload {
 	return ox.payload
 }
 
@@ -246,13 +233,13 @@ func (ox serr) Package() string {
 
 // String to get formated error message
 func (ox serr) String() string {
-	comments := ""
+	var comments string
 
 	if ox.Code() != 0 {
 		comments += fmt.Sprintf(" <code: %d>", ox.Code())
 	}
 
-	if isExists(ox.Key(), []string{"-", "!"}) {
+	if isExists(ox.Key(), []string{"-", "!", ""}) {
 		comments += fmt.Sprintf(" <key: %s>", ox.Key())
 	}
 
@@ -272,17 +259,17 @@ func (ox serr) String() string {
 
 // SimpleString to get simple formatted error message
 func (ox serr) SimpleString() string {
-	msg := ox.Error()
+	errorMessage := ox.Error()
 	if len(ox.comments) > 0 {
-		msg = fmt.Sprintf("%s, detail: %s [%s:%d]", ox.Comments(), msg, ox.File(), ox.Line())
+		errorMessage = fmt.Sprintf("%s, detail: %s [%s:%d]", ox.Comments(), errorMessage, ox.File(), ox.Line())
 	}
 
-	return msg
+	return errorMessage
 }
 
 // ColoredString to get formated error message with color (cli color code)
 func (ox serr) ColoredString() string {
-	comments := ""
+	var comments string
 
 	if ox.Code() != 0 {
 		comments += fmt.Sprintf(" <code: %d>", ox.Code())
@@ -317,47 +304,47 @@ func (ox *serr) SetCode(code int) {
 }
 
 // SetLevel to set error level
-func (ox *serr) SetLevel(lvl ErrLevel) {
-	ox.level = lvl
+func (ox *serr) SetLevel(level ErrorLevel) {
+	ox.level = level
 }
 
-func (ox *serr) addRawComment(note string, skip int) {
-	if len(note) <= 0 {
+func (ox *serr) addRawComment(message string, callerSkip int) {
+	if len(message) <= 0 {
 		return
 	}
 
 	if len(ox.comments) <= 0 {
-		ox.comments = append(ox.comments, strings.ToUpper(string(note[0]))+string(note[1:]))
+		ox.comments = append(ox.comments, strings.ToUpper(string(message[0]))+string(message[1:]))
 		return
 	}
 
-	_, file, line, _ := runtime.Caller(skip + 1)
-	ox.comments = append(ox.comments, fmt.Sprintf("%s on [%s:%d]", note, resolvePath(file), line))
+	_, file, line, _ := runtime.Caller(callerSkip + 1)
+	ox.comments = append(ox.comments, fmt.Sprintf("%s on [%s:%d]", message, resolvePath(file), line))
 }
 
 // AddComment to add error comment
-func (ox *serr) AddComment(msg string) {
-	ox.addRawComment(msg, 1)
+func (ox *serr) AddComment(message string) {
+	ox.addRawComment(message, 1)
 }
 
 // AddComments to add error comment with skip
-func (ox *serr) AddComments(skip int, msg string) {
-	ox.addRawComment(msg, 1+skip)
+func (ox *serr) AddComments(callerSkip int, message string) {
+	ox.addRawComment(message, 1+callerSkip)
 }
 
 // AddCommentf to add error comment with string binding
-func (ox *serr) AddCommentf(msg string, opts ...interface{}) {
-	ox.addRawComment(fmt.Sprintf(msg, opts...), 1)
+func (ox *serr) AddCommentf(message string, args ...interface{}) {
+	ox.addRawComment(fmt.Sprintf(message, args...), 1)
 }
 
 // ApplyPayload to apply error payload
-func (ox *serr) ApplyPayload(load ErrPayload) {
+func (ox *serr) ApplyPayload(payload ErrorPayload) {
 	if ox.payload == nil {
-		ox.payload = make(ErrPayload)
+		ox.payload = make(ErrorPayload)
 	}
 
-	if load != nil {
-		for k, v := range load {
+	if payload != nil {
+		for k, v := range payload {
 			ox.payload[k] = v
 		}
 	}
@@ -366,7 +353,7 @@ func (ox *serr) ApplyPayload(load ErrPayload) {
 // SetPayload to set error payload
 func (ox *serr) SetPayload(key string, value interface{}) {
 	if ox.payload == nil {
-		ox.payload = make(ErrPayload)
+		ox.payload = make(ErrorPayload)
 	}
 
 	ox.payload[key] = value
